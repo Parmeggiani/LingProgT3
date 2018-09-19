@@ -20,18 +20,18 @@
         override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
             for (e : resource.allContents.toIterable.filter(Entity)) {
                 fsa.generateFile(
-                    e.fullyQualifiedName.toString("/") + ".java",
+                    e.fullyQualifiedName.toString("/") + ".cpp",
                     e.compile)
             }
         }
      
         def compile(Entity e) ''' 
+        
             «IF e.eContainer.fullyQualifiedName !== null»
                 #include< «e.eContainer.fullyQualifiedName»>;
             «ENDIF»
             
-            class «e.name» «IF e.superType !== null
-                    »:«e.superType.fullyQualifiedName» «ENDIF»{
+            class «e.name» «IF e.superType !== null» : «e.superType.fullyQualifiedName» «ENDIF»{
                 «FOR f : e.features»
                     «f.compile»
                 «ENDFOR»
@@ -39,14 +39,18 @@
         '''
   
         def compile(Feature f) '''
-            private: «f.type.fullyQualifiedName» «f.name»;
+            private: 
+            «f.type.fullyQualifiedName» «f.name»;
             
-            void «f.type.fullyQualifiedName» get«f.name.toFirstUpper»() {
+            
+            public:
+            «f.type.fullyQualifiedName» get«f.name.toFirstUpper»() {
                 return «f.name»;
             }
             
-            public void set«f.name.toFirstUpper»(«f.type.fullyQualifiedName» «f.name») {
-                this.«f.name» = «f.name»;
+            public:
+            void set«f.name.toFirstUpper»(«f.type.fullyQualifiedName» «f.name») {
+                this->«f.name» = «f.name»;
             }
         '''
     }
